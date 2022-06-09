@@ -1,0 +1,18 @@
+{
+  "name": "@db-man/cli",
+  "version": "0.1.0",
+  "description": "CLI for db-man",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/db-man/cli.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/db-man/cli/issues"
+  },
+  "homepage": "https://github.com/db-man/cli#readme",
+  "bin": {
+    "db-man-cli": "bin/cli.mjs"
+  }
+}
