@@ -7,6 +7,7 @@ import {
 
 const dir = process.argv[2];
 const opt = process.argv[3];
+const dbTable = process.argv[4]; // Optional, only process this db table
 
 (() => {
   if (!dir || !opt) {
@@ -18,11 +19,11 @@ const opt = process.argv[3];
 
   if (opt === 'split') {
     (async () => {
-      await processDbs(splitTableFileToRecordFiles, dir);
+      await processDbs(splitTableFileToRecordFiles, dir, dbTable);
     })();
   } else if (opt === 'merge') {
     (async () => {
-      await processDbs(mergeRecordFilesToTableFile, dir);
+      await processDbs(mergeRecordFilesToTableFile, dir, dbTable);
     })();
   } else {
     console.error('Invalid params, should be "split" or "merge".');

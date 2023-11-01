@@ -7,3 +7,9 @@
 npx @db-man/cli dbs split
 npx @db-man/cli dbs merge
 ```
+
+Only process one table file at a time.
+
+```
+npx @db-man/cli dbs split iam/users
+```

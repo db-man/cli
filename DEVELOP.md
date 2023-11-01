@@ -2,7 +2,9 @@
 
 ```
 node bin/cli.mjs __test_dir__ split
+node bin/cli.mjs __test_dir__ split __test_db__/users
 node bin/cli.mjs __test_dir__ merge
+node bin/cli.mjs __test_dir__ merge __test_db__/users
 ```
 
 ## Publish npm

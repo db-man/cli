@@ -57,12 +57,18 @@ export const getDbs = async (dir) => {
  *
  * @param {Function} _processTable One of splitTableFileToRecordFiles, mergeRecordFilesToTableFile, integrate
  * @param {*} dir
+ * @param {string} dbTable Optional, only process this db table, e.g. "__test_db__/users"
  */
-export const processDbs = async (_processTable, dir) => {
+export const processDbs = async (_processTable, dir, dbTable) => {
   const dbs = await getDbs(dir);
 
   for (const db of dbs) {
     for (const table of db.tables) {
+      if (dbTable && `${db.name}/${table.name}` !== dbTable) {
+        console.log('skip table:', db.name, table.name);
+        continue;
+      }
+
       const primaryCol = table.columns.find((col) => col.primary);
       if (!primaryCol) {
         console.error('No primary key found in table!', table.columns);
