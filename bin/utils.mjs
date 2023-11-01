@@ -69,7 +69,7 @@ export const processDbs = async (_processTable, dir) => {
         continue;
       }
       console.log('start process table:', db.name, table.name, primaryCol.id);
-      await _processTable(dir, db.name, table.name, primaryCol.id);
+      await _processTable(dir, db.name, table.name, primaryCol.id, table);
       console.log('finish process table:', db.name, table.name);
     }
   }
@@ -80,7 +80,8 @@ export const splitTableFileToRecordFiles = async (
   dir,
   dbName,
   tableName,
-  primaryKey
+  primaryKey,
+  table
 ) => {
   let data = null;
   try {
@@ -99,9 +100,17 @@ export const splitTableFileToRecordFiles = async (
 
   console.debug(`Split ${dbName}/${tableName} rows count: ${rows.length}`);
 
+  const primaryColumn = table.columns.find((col) => col.primary);
+
   for (const row of rows) {
     try {
-      const filename = validFilename(row[primaryKey]);
+      let filename = '';
+      if (primaryColumn.type === 'NUMBER') {
+        filename = row[primaryKey] + '';
+      } else {
+        filename = validFilename(row[primaryKey]);
+      }
+
       await writeFile(
         `./${dir}/${dbName}/${tableName}/${filename}.json`,
         JSON.stringify(row, null, '  '),
@@ -118,7 +127,8 @@ export const mergeRecordFilesToTableFile = async (
   dir,
   dbName,
   tableName,
-  primaryKey
+  primaryKey,
+  table
 ) => {
   let files = null;
   try {

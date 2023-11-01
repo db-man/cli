@@ -1,3 +1,10 @@
+## Debug
+
+```
+node bin/cli.mjs __test_db__ split
+node bin/cli.mjs __test_db__ merge
+```
+
 ## Publish npm
 
 ```
