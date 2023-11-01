@@ -1,3 +1,4 @@
+import path from 'path';
 import { readFile, writeFile, readdir } from 'fs/promises';
 
 /**
@@ -147,6 +148,12 @@ export const mergeRecordFilesToTableFile = async (
   const rows = [];
 
   for (const file of files) {
+    // Only process .json files
+    if (path.extname(file) !== '.json') {
+      console.warn('skip non json record file:', file);
+      continue;
+    }
+
     let data = null;
     try {
       data = await readFile(`./${dir}/${dbName}/${tableName}/${file}`, 'utf8');
