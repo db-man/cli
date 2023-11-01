@@ -58,7 +58,7 @@ export const getDbs = async (dir) => {
  *
  * @param {Function} _processTable One of splitTableFileToRecordFiles, mergeRecordFilesToTableFile, integrate
  * @param {*} dir
- * @param {string} dbTable Optional, only process this db table, e.g. "__test_dbs_dir__/users"
+ * @param {string} dbTable Optional, only process this db table, e.g. "iam/users"
  */
 export const processDbs = async (_processTable, dir, dbTable) => {
   const dbs = await getDbs(dir);

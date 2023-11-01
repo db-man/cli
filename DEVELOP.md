@@ -1,10 +1,12 @@
 ## Debug
 
 ```
-node bin/cli.mjs __test_dir__ split
-node bin/cli.mjs __test_dir__ split __test_dbs_dir__/users
-node bin/cli.mjs __test_dir__ merge
-node bin/cli.mjs __test_dir__ merge __test_dbs_dir__/users
+node bin/cli.mjs __test_dbs_dir__ split
+node bin/cli.mjs __test_dbs_dir__ split iam/users
+node bin/cli.mjs __test_dbs_dir__ split iam/roles
+node bin/cli.mjs __test_dbs_dir__ merge
+node bin/cli.mjs __test_dbs_dir__ merge iam/users
+node bin/cli.mjs __test_dbs_dir__ merge iam/roles
 ```
 
 ## Publish npm
