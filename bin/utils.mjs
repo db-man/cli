@@ -9,126 +9,143 @@ import { readFile, writeFile, readdir } from 'fs/promises';
  */
 export const validFilename = (oldStr) => {
   return oldStr.replace(/[^a-zA-Z0-9._-]/g, '_');
-}
+};
 
 export const convert = (data) => {
-  const rows = JSON.parse(data)
-  return rows
-}
+  const rows = JSON.parse(data);
+  return rows;
+};
 
 /**
- * 
+ *
  * @param {*} dir Dir for all databases
- * @returns 
+ * @returns
  */
 export const getDbs = async (dir) => {
-  const dbs = []
-  let dbNames = []
+  const dbs = [];
+  let dbNames = [];
 
   try {
     dbNames = await readdir(`./${dir}`);
   } catch (err) {
-    console.error('Failed to list db dir files, err:', err)
-    return []
+    console.error('Failed to list db dir files, err:', err);
+    return [];
   }
 
   for (const dbName of dbNames) {
-    let tables = []
+    let tables = [];
     try {
-      const fileContent = await readFile(`./${dir}/${dbName}/columns.json`, 'utf8')
-      tables = JSON.parse(fileContent)
+      const fileContent = await readFile(
+        `./${dir}/${dbName}/columns.json`,
+        'utf8'
+      );
+      tables = JSON.parse(fileContent);
     } catch (err) {
-      console.error('Failed to read db columns data file, err:', err)
-      return []
+      console.error('Failed to read db columns data file, err:', err);
+      return [];
     }
     dbs.push({
       name: dbName,
-      tables
-    })
+      tables,
+    });
   }
 
-  return dbs
-}
+  return dbs;
+};
 
 /**
- * 
+ *
  * @param {Function} _processTable One of splitTableFileToRecordFiles, mergeRecordFilesToTableFile, integrate
- * @param {*} dir 
+ * @param {*} dir
  */
 export const processDbs = async (_processTable, dir) => {
-  const dbs = await getDbs(dir)
+  const dbs = await getDbs(dir);
 
   for (const db of dbs) {
     for (const table of db.tables) {
-      const primaryCol = table.columns.find(col => col.primary)
+      const primaryCol = table.columns.find((col) => col.primary);
       if (!primaryCol) {
-        console.error('No primary key found in table!', table.columns)
-        continue
+        console.error('No primary key found in table!', table.columns);
+        continue;
       }
-      console.log('start process table:', db.name, table.name, primaryCol.id)
+      console.log('start process table:', db.name, table.name, primaryCol.id);
       await _processTable(dir, db.name, table.name, primaryCol.id);
-      console.log('finish process table:', db.name, table.name)
+      console.log('finish process table:', db.name, table.name);
     }
   }
-}
+};
 
 // split one big file to small files
-export const splitTableFileToRecordFiles = async (dir, dbName, tableName, primaryKey) => {
-  let data = null
+export const splitTableFileToRecordFiles = async (
+  dir,
+  dbName,
+  tableName,
+  primaryKey
+) => {
+  let data = null;
   try {
-    data = await readFile(`./${dir}/${dbName}/${tableName}.data.json`, 'utf8')
+    data = await readFile(`./${dir}/${dbName}/${tableName}.data.json`, 'utf8');
   } catch (err) {
-    console.error('Failed to read table data file, err:', err)
-    return
+    console.error('Failed to read table data file, err:', err);
+    return;
   }
 
   if (!data) {
-    console.error('table data file is empty!')
-    return
+    console.error('table data file is empty!');
+    return;
   }
 
-  const rows = convert(data)
+  const rows = convert(data);
 
-  console.debug(`Split ${dbName}/${tableName} rows count: ${rows.length}`)
+  console.debug(`Split ${dbName}/${tableName} rows count: ${rows.length}`);
 
   for (const row of rows) {
     try {
-      const filename = validFilename(row[primaryKey])
-      await writeFile(`./${dir}/${dbName}/${tableName}/${filename}.json`, JSON.stringify(row, null, '  '), 'utf8')
+      const filename = validFilename(row[primaryKey]);
+      await writeFile(
+        `./${dir}/${dbName}/${tableName}/${filename}.json`,
+        JSON.stringify(row, null, '  '),
+        'utf8'
+      );
     } catch (err) {
-      console.error('Failed to write to a record file, err:', err)
+      console.error('Failed to write to a record file, err:', err);
     }
   }
-}
+};
 
 // merge multiple small files into one big file
-export const mergeRecordFilesToTableFile = async (dir, dbName, tableName, primaryKey) => {
-  let files = null
+export const mergeRecordFilesToTableFile = async (
+  dir,
+  dbName,
+  tableName,
+  primaryKey
+) => {
+  let files = null;
   try {
     files = await readdir(`./${dir}/${dbName}/${tableName}`);
   } catch (err) {
-    console.error('Failed to list table dir files, err:', err)
-    return
+    console.error('Failed to list table dir files, err:', err);
+    return;
   }
 
-  const rows = []
+  const rows = [];
 
   for (const file of files) {
-    let data = null
+    let data = null;
     try {
-      data = await readFile(`./${dir}/${dbName}/${tableName}/${file}`, 'utf8')
+      data = await readFile(`./${dir}/${dbName}/${tableName}/${file}`, 'utf8');
     } catch (err) {
-      console.error('Failed to read record file, err:', err)
-      continue
+      console.error('Failed to read record file, err:', err);
+      continue;
     }
 
     if (!data) {
-      console.warn('record file is empty!')
-      continue
+      console.warn('record file is empty!');
+      continue;
     }
 
-    const record = JSON.parse(data)
-    rows.push(record)
+    const record = JSON.parse(data);
+    rows.push(record);
   }
 
   // Sort by primary key
@@ -137,38 +154,44 @@ export const mergeRecordFilesToTableFile = async (dir, dbName, tableName, primar
   });
 
   try {
-    await writeFile(`./${dir}/${dbName}/${tableName}.data.json`, JSON.stringify(rows, null, ' '), 'utf8')
+    await writeFile(
+      `./${dir}/${dbName}/${tableName}.data.json`,
+      JSON.stringify(rows, null, ' '),
+      'utf8'
+    );
   } catch (err) {
-    console.error('Failed to write to a table data file, err:', err)
-    return
+    console.error('Failed to write to a table data file, err:', err);
+    return;
   }
 
-  console.log(`Merged ${rows.length} rows into ${dbName}/${tableName} table file.`)
-}
+  console.log(
+    `Merged ${rows.length} rows into ${dbName}/${tableName} table file.`
+  );
+};
 
 export const integrate = async (dir, dbName, tableName, primaryKey) => {
-  let files = null
+  let files = null;
   try {
     files = await readdir(`./${dir}/${dbName}/${tableName}`);
   } catch (err) {
-    console.error('Failed to list table dir files, err:', err)
-    return
+    console.error('Failed to list table dir files, err:', err);
+    return;
   }
 
-  let data = null
+  let data = null;
   try {
-    data = await readFile(`./${dir}/${dbName}/${tableName}.data.json`, 'utf8')
+    data = await readFile(`./${dir}/${dbName}/${tableName}.data.json`, 'utf8');
   } catch (err) {
-    console.error('Failed to read table data file, err:', err)
-    return
+    console.error('Failed to read table data file, err:', err);
+    return;
   }
 
   if (!data) {
-    console.error('table data file is empty!')
-    return
+    console.error('table data file is empty!');
+    return;
   }
 
-  const rows = convert(data)
+  const rows = convert(data);
 
-  console.log('count:', files.length, rows.length)
-}
+  console.log('count:', files.length, rows.length);
+};
