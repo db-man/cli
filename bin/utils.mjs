@@ -1,6 +1,8 @@
 import path from 'path';
 import { readFile, writeFile, readdir } from 'fs/promises';
 
+const DB_CFG_FILENAME = 'dbcfg.json';
+
 /**
  * Get valid file name
  * See: https://stackoverflow.com/a/4814088
@@ -37,12 +39,12 @@ export const getDbs = async (dir) => {
     let tables = [];
     try {
       const fileContent = await readFile(
-        `./${dir}/${dbName}/columns.json`,
+        `./${dir}/${dbName}/${DB_CFG_FILENAME}`,
         'utf8'
       );
       tables = JSON.parse(fileContent);
     } catch (err) {
-      console.error('Failed to read db columns data file, err:', err);
+      console.error('Failed to read db cfg data file, err:', err);
       return [];
     }
     dbs.push({
