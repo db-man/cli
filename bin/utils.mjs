@@ -29,7 +29,18 @@ export const getDbs = async (dir) => {
   let dbNames = [];
 
   try {
-    dbNames = await readdir(`./${dir}`);
+    dbNames = await readdir(`./${dir}`, { withFileTypes: true })
+      .then((dirents) =>
+        dirents.filter((dirent) => {
+          if (dirent.isDirectory()) {
+            return dirent;
+          } else {
+            console.warn('[WARN] Skip non dir:', dirent.name);
+            return false;
+          }
+        })
+      )
+      .then((dirs) => dirs.map((dir) => dir.name));
   } catch (err) {
     console.error('Failed to list db dir files, err:', err);
     return [];
